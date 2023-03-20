@@ -2,6 +2,9 @@ Project created by me and my firend Magda Słonińska for ML course on my univer
 
 We use KNN and Decision Tree algorithms to classify food pictures
 
+Dataset:
+- Food-101
+
 Used libraries:
 - Numpy
 - OpenCV
