@@ -1,13 +1,26 @@
+import argparse
 import time
-
+import torch
+from tqdm import tqdm
+import numpy as np
+from matplotlib import pyplot as plt
+from sklearn.metrics import classification_report
 from torch import nn
 from torch.optim import Adam
 from torch.utils.data import random_split
 from torchvision.transforms import ToTensor
 from torchvision.datasets import KMNIST
 from torch.utils.data import DataLoader
-import torch
 from lenet import lenet
+
+# construct the argument parser and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-m", "--model", type=str, required=True,
+	help="path to output trained model")
+ap.add_argument("-p", "--plot", type=str, required=True,
+	help="path to output loss/accuracy plot")
+args = vars(ap.parse_args())
+
 
 # initing training parameters
 INIT_LR = 1e-3
@@ -52,7 +65,7 @@ History = {
 # Measuring how long training will take
 start_time = time.time()
 
-for i in range(0, EPOCHS):
+for i in tqdm(range(0, EPOCHS)):
     # Setting model into train mode
     model.train()
 
@@ -77,7 +90,7 @@ for i in range(0, EPOCHS):
         optimizer.step()
 
         TrainLoss += loss
-        trainCorrect += (pred.argmax(1) == 1).type(torch.float).sum().item()
+        trainCorrect += (pred.argmax(1) == y).type(torch.float).sum().item()
 
     # Testing Validation set
     with torch.no_grad():
@@ -92,4 +105,52 @@ for i in range(0, EPOCHS):
 
             valCorrect += (pred.argmax(1) == y).type(torch.float).sum().item()
 
+    # Calculating and saving data for loss/acc plot
+    avgTrainLoss = TrainLoss / _trainStep
+    avgValLoss = ValLoss / _valStep
 
+    trainCorrect = trainCorrect / len(_trainDataLoader.dataset)
+    valCorrect = valCorrect / len(_valDataLoader.dataset)
+
+    History["train_loss"].append(avgTrainLoss.cpu().detach().numpy())
+    History["train_acc"].append(trainCorrect)
+    History["val_loss"].append(avgValLoss.cpu().detach().numpy())
+    History["val_acc"].append(valCorrect)
+
+end_time = time.time()
+
+print(f'Time taken to train mode {(end_time-start_time)}')
+
+# Evaluating test set
+with torch.no_grad():
+    # changing model into eval mode
+    model.eval()
+
+    pred_res = []
+
+    # predicting for test set
+    for (x, y) in _testDataLoader:
+        x = x.to(device)
+
+        pred = model(x)
+        pred_res.extend(pred.argmax(axis=1).cpu().numpy())
+
+
+# Printing classification report
+report = classification_report(_test.targets.cpu().numpy(), np.array(pred_res), target_names=_test.classes)
+print(report)
+
+# Creating loss and acc plot
+plt.figure()
+plt.plot(History["train_loss"], label="train_loss")
+plt.plot(History["val_loss"], label="val_loss")
+plt.plot(History["train_acc"], label="train_acc")
+plt.plot(History["val_acc"], label="val_acc")
+plt.title("Training Loss and Accuracy on KMNIST")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy")
+plt.legend(loc="lower left")
+plt.savefig(args["plot"])
+
+# saving model to disc
+torch.save(model, args["model"])
