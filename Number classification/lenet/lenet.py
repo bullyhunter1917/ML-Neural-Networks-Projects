@@ -44,3 +44,5 @@ class LeNet(Module):
 
         x = self.linear2(x)
         output = self.softmax(x)
+
+        return output
