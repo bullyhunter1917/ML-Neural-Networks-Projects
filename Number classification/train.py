@@ -49,5 +49,47 @@ History = {
     "val_acc": []
 }
 
+# Measuring how long training will take
+start_time = time.time()
+
+for i in range(0, EPOCHS):
+    # Setting model into train mode
+    model.train()
+
+    # Statistics for plot
+    TrainLoss = 0
+    ValLoss = 0
+    trainCorrect = 0
+    valCorrect = 0
+
+    # Training model
+    for (x, y) in _trainDataLoader:
+        # Sending input to device
+        (x, y) = (x.to(device), y.to(device))
+
+        # Predict and calculate loss
+        pred = model(x)
+        loss = lossFunction(pred, y)
+
+        # Change grad to zero from last epoch, calculate new grad and update values
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        TrainLoss += loss
+        trainCorrect += (pred.argmax(1) == 1).type(torch.float).sum().item()
+
+    # Testing Validation set
+    with torch.no_grad():
+        # Setting model into evaluation mode
+        model.eval()
+
+        for (x, y) in _valDataLoader:
+            (x, y) = (x.to(device), y.to(device))
+
+            pred = model(x)
+            ValLoss += lossFunction(pred, y)
+
+            valCorrect += (pred.argmax(1) == y).type(torch.float).sum().item()
 
 
