@@ -6,9 +6,9 @@ from torch.nn import Linear
 from torch.nn import LogSoftmax
 from torch import flatten
 
-class cnn(Module):
+class Cnn(Module):
     def __init__(self, numOfChannels, classes):
-        super(cnn).__init__()
+        super(Cnn, self).__init__()
 
         self.conv1_1 = Conv2d(in_channels=numOfChannels, out_channels=64, kernel_size=(3, 3), padding=1)
         self.relu = ReLU()
