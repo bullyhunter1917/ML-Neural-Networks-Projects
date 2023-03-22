@@ -1,12 +1,12 @@
 import argparse
-
 import imutils as imutils
 import numpy as np
 import torch
 import torchvision.datasets
+import cv2
+
 from torch.utils.data import Subset, DataLoader
 from torchvision.transforms import ToTensor
-import cv2
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("-m", "--model", type=str, required=True, help="path to the trained PyTorch model")
