@@ -25,4 +25,5 @@ Results:
     weighted_avg   0.94      0.94      0.94     10000
 
 Traning plot:
+
 ![plot](https://user-images.githubusercontent.com/45041977/228349852-58df18cc-4c90-4cca-abd2-2d0acf8ab041.png)
