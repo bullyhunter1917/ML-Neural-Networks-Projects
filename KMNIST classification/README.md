@@ -1,6 +1,8 @@
 My first try to create image classifier using Convolution Neural Networks. I use LeNet architecture
+
 Dataset:
 - KMNIST
+
 Used libraries:
 - PyTorch
 - Numpy
