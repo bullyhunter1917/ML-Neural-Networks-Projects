@@ -7,8 +7,8 @@ Used libraries:
 - Matplotlib
 
 Results:
-              precision    recall  f1-score   support
 
+           \  precision    recall  f1-score   support
            o       0.93      0.94      0.94      1000
           ki       0.97      0.94      0.95      1000
           su       0.92      0.89      0.90      1000
@@ -21,7 +21,8 @@ Results:
           wo       0.95      0.96      0.95      1000
 
     accuracy                           0.94     10000
-   macro avg       0.94      0.94      0.94     10000
-weighted avg       0.94      0.94      0.94     10000
+    macro_avg      0.94      0.94      0.94     10000
+    weighted_avg   0.94      0.94      0.94     10000
 
 Traning plot:
+![plot](https://user-images.githubusercontent.com/45041977/228349852-58df18cc-4c90-4cca-abd2-2d0acf8ab041.png)
