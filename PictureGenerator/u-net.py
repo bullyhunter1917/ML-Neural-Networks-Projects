@@ -10,7 +10,7 @@ class U_net(nn.Module):
 
         # 256x256x3
 
-        self.input = DoubleConv(inChannels, 32, )
+        self.input = DoubleConv(inChannels, 32)
 
         # Encoder layer
         self.down1 = Down(32, 64)
@@ -23,23 +23,23 @@ class U_net(nn.Module):
         self.sa4 = SelfAttention(512, 16) # 16x16x512
 
         # Bottom layer
-        self.maxpool = nn.MaxPool2d(kernel_size=(2, 2))
-        self.conv2_1 = nn.Conv2d(kernel_size=(3, 3), in_channels=512, out_channels=1024, padding=1)
-        self.conv2_2 = nn.Conv2d(kernel_size=(3, 3), in_channels=1024, out_channels=1024, padding=1)
+        self.bot1 = DoubleConv(512, 1024)
+        self.bot2 = DoubleConv(1024, 1024)
+        self.bot3 = DoubleConv(1024, 512)
 
         # Decoder layer
-        self.up1 = Up(1024, 512)
+        self.up1 = Up(1024, 256)
         self.sa5 = SelfAttention(512, 16)
-        self.up2 = Up(512, 256)
+        self.up2 = Up(512, 128)
         self.sa6 = SelfAttention(256, 32)
-        self.up3 = Up(256, 128)
+        self.up3 = Up(256, 64)
         self.sa7 = SelfAttention(128, 64)
-        self.up4 = Up(128, 64)
+        self.up4 = Up(128, 32)
         self.sa8 = SelfAttention(64, 128)
-        self.up5 = Up(64, 32)
+        self.up5 = Up(64, 16)
         self.sa9 = SelfAttention(32, 256)
 
-        self.output = Conv2d(kernel_size=(1, 1), in_channels=32, out_channels=outChannels)
+        self.output = nn.Conv2d(kernel_size=(1, 1), in_channels=32, out_channels=outChannels)
 
     def pos_encoding(self, t, channels):
         inv_freq = 1.0 / (
