@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class U_net(nn.Module):
-    def __int__(self, inChannels=3, outChannels=3, time_dim=256, device='cuda'):
+    def __init__(self, inChannels=3, outChannels=3, time_dim=256, device='cuda'):
         super().__init__()
         self.device = device
         self.time_dim = time_dim
@@ -13,13 +13,13 @@ class U_net(nn.Module):
         self.input = DoubleConv(inChannels, 32)
 
         # Encoder layer
-        self.down1 = Down(32, 64)
+        self.down1 = Down(inChannels=32, outChannels=64)
         self.sa1 = SelfAttention(64, 128) # 128x128x64
-        self.down2 = Down(64, 128)
+        self.down2 = Down(inChannels=64, outChannels=128)
         self.sa2 = SelfAttention(128, 64) # 64x64x128
-        self.down3 = Down(128, 256)
+        self.down3 = Down(inChannels=128, outChannels=256)
         self.sa3 = SelfAttention(256, 32) # 32x32x256
-        self.down4 = Down(256, 512)
+        self.down4 = Down(inChannels=256, outChannels=512)
         self.sa4 = SelfAttention(512, 16) # 16x16x512
 
         # Bottom layer
@@ -124,7 +124,7 @@ class DoubleConv(nn.Module):
 
 
 class Down(nn.Module):
-    def __int__(self, inChannels, outChannels, emb_dim=256):
+    def __init__(self, inChannels, outChannels, emb_dim=256):
         super().__init__()
         self.maxpool_conv = nn.Sequential(
             nn.MaxPool2d(kernel_size=(2, 2)),
@@ -147,7 +147,8 @@ class Down(nn.Module):
         return x + emb
 
 class Up(nn.Module):
-    def __int__(self, inChannels, outChannels, emb_dim=256):
+    def __init__(self, inChannels, outChannels, emb_dim=256):
+        super().__init__()
         self.upPool = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
         self.convUp = nn.Sequential(
             DoubleConv(inChannels, inChannels, residual=True),
@@ -171,7 +172,7 @@ class Up(nn.Module):
 
 
 class SelfAttention(nn.Module):
-    def __int__(self, channels, size):
+    def __init__(self, channels, size):
         super(SelfAttention, self).__init__()
         self.channels = channels
         self.size = size

@@ -2,7 +2,7 @@ import torch
 from tqdm import tqdm
 
 class Diffusion:
-    def __int__(self, T=1000, beta_start=1e-4, beta_end=0.02, imsize=256, device='cuda'):
+    def __init__(self, T=1000, beta_start=1e-4, beta_end=0.02, imsize=256, device='cuda'):
         self.T = T
         self.beta_start = beta_start
         self.beta_end = beta_end
@@ -18,9 +18,12 @@ class Diffusion:
 
     def noise_image(self, x, t):
         sqrt_a_hat = torch.sqrt(self.alpha_hat[t])
+        print(sqrt_a_hat.shape)
         sqrt_one_minus_a_hat = torch.sqrt(1 - self.alpha_hat[t])
-        e = torch.randn(x)
-        return sqrt_a_hat*x + sqrt_one_minus_a_hat*e, e
+        e = torch.randn(x.shape)
+        print(x.shape)
+        print(e.shape)
+        return sqrt_a_hat.reshape((12,1,1,1))*x + sqrt_one_minus_a_hat.reshape((12,1,1,1))*e, e
 
     def sample_timestamp(self, n):
         return torch.randint(low=1, high=self.T, size=(n,))

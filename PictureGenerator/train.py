@@ -1,56 +1,63 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import os.path
+
+import torch
+import torchvision.utils
+from torchvision.datasets import CIFAR10
+from tqdm import tqdm
+import torchvision.transforms as trans
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from torch.optim import AdamW
+import DDPM
+import u_net
 from PIL import Image
 
-BETA_start = 0.0001
-BETA_end = 0.02
-T = 1000
+def save_images(images, path):
+    grid = torchvision.utils.make_grid(images)
+    ndarr = grid.permute(1, 2, 0).to("cpu").numpy()
+    im = Image.fromarray(ndarr)
+    im.save(path)
 
-beta_t = np.linspace(BETA_start, BETA_end, T)
-a_t = np.linspace((1 - BETA_start), (1 - BETA_end), 1000)
-
-
-# Whole forward in one step
-def forward(x):
-    return np.sqrt(np.prod(a_t))*x + np.sqrt(1 - np.prod(a_t))*np.random.normal(0, 1, x.shape)
-
-
-# One forward step
-def forward_t(x, t):
-    return np.sqrt(np.prod(a_t[:t]))*x + np.sqrt(1 - np.prod(a_t[:t]))*np.random.normal(0, 1, x.shape)
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+SIZE = 256
+EPOCH = 360
+BATCH_SIZE = 12
+NOISE_SIZE = 1000
+LR = 3e-4
 
 
-def sampling():
-    xt = np.random.normal(0, 1)
-    for i in range(T, 1, -1):
-        if i > 1:
-            z = np.random.normal(0, 1)
-        else:
-            z = 0
+_train = CIFAR10(root='data', train=True, download=True, transform=trans.Compose(
+    [trans.Resize((SIZE, SIZE)),
+    trans.ToTensor()]
+))
 
-        xt = 1/np.sqrt(a_t[i])*(xt - (1 - a_t[i])/np.sqrt(1 - np.prod(a_t[:i]))* epsilon_theta ) + sigma_t*z
+_test = CIFAR10(root='data', train=False, download=True, transform=trans.Compose(
+    [trans.Resize((SIZE, SIZE)),
+    trans.ToTensor()]
+))
 
-    return xt
+_trainDataLoader = DataLoader(_train, BATCH_SIZE, shuffle=True)
+_testDataLoader = DataLoader(_test, BATCH_SIZE)
 
+sampling = DDPM.Diffusion()
+model = u_net.U_net().to(DEVICE)
+optimaizer = AdamW(params=model.parameters(), lr=LR)
+mse = nn.MSELoss()
 
-def train():
-    x0 = sampling()
-    t = np.random.uniform(0, T)
-    epsilon = np.random.normal(0, 1)
+for i in tqdm(range(EPOCH)):
+    model.train()
 
-    # Policzyć gradient????
+    for (x, y) in _trainDataLoader:
+        (x, y) = (x.to(DEVICE), y.to(DEVICE))
+        t = sampling.sample_timestamp(BATCH_SIZE)
+        xt, noise = sampling.noise_image(x, t)
+        predicted_noise = model(xt, t)
+        loss = mse(predicted_noise, noise)
 
-    return
+        optimaizer.zero_grad()
+        loss.back()
+        optimaizer.step()
 
-
-originalPicture = plt.imread('Mallard.jpg')
-
-# Normalizing picture
-originalPicture = originalPicture.astype(float)
-originalPicture /= 255
-
-plt.imshow(originalPicture)
-plt.show()
-
-plt.imshow(forward_t(originalPicture, 300))
-plt.show()
+    sampled_images = sampling.sample(model, n=BATCH_SIZE)
+    save_images(sampled_images, f'output/pictures/{i}.jpg')
+    torch.save(model.state_dict(), 'output/models/model.pt')
