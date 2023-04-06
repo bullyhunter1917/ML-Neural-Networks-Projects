@@ -9,21 +9,18 @@ class Diffusion:
         self.imsize = imsize
         self.device = device
 
-        self.beta = self.prepare_noise_scheduler(beta_start, beta_end, T)
+        self.beta = self.prepare_noise_scheduler().to(device)
         self.alpha = 1 - self.beta
         self.alpha_hat = torch.cumprod(self.alpha, dim=0)
 
-    def prepare_noise_scheduler(self, beta_start, beta_end, T):
-        return torch.linspace(beta_start, beta_end, T)
+    def prepare_noise_scheduler(self):
+        return torch.linspace(self.beta_start, self.beta_end, self.T)
 
     def noise_image(self, x, t):
-        sqrt_a_hat = torch.sqrt(self.alpha_hat[t])
-        print(sqrt_a_hat.shape)
-        sqrt_one_minus_a_hat = torch.sqrt(1 - self.alpha_hat[t])
-        e = torch.randn(x.shape)
-        print(x.shape)
-        print(e.shape)
-        return sqrt_a_hat.reshape((12,1,1,1))*x + sqrt_one_minus_a_hat.reshape((12,1,1,1))*e, e
+        sqrt_a_hat = torch.sqrt(self.alpha_hat[t])[:, None, None, None]
+        sqrt_one_minus_a_hat = torch.sqrt(1 - self.alpha_hat[t])[:, None, None, None]
+        e = torch.randn(x.shape).to(self.device)
+        return sqrt_a_hat * x + sqrt_one_minus_a_hat * e, e
 
     def sample_timestamp(self, n):
         return torch.randint(low=1, high=self.T, size=(n,))
@@ -33,20 +30,21 @@ class Diffusion:
         with torch.no_grad():
             xt = torch.randn((n, 3, self.imsize, self.imsize)).to(self.device)
 
-            for i in tqdm(reversed(range(1, self.T))):
-                t = (torch.ones(n)*i).long().to(self.device)
+            for i in tqdm(reversed(range(1, self.T)), position=0):
+                t = (torch.ones(n) * i).long().to(self.device)
                 predicted_noise = model(xt, t)
-                alpha = self.alpha[i][:, None, None, None]
-                alpha_hat = self.alpha_hat[i][:, None, None, None]
-                beta = self.beta[i][:, None, None, None]
-
+                alpha = self.alpha[t][:, None, None, None]
+                alpha_hat = self.alpha_hat[t][:, None, None, None]
+                beta = self.beta[t][:, None, None, None]
 
                 if i > 1:
                     z = torch.randn_like(xt)
                 else:
                     z = torch.zeros_like(xt)
-                xt = 1/torch.sqrt(alpha)*(xt - (1 - alpha)/torch.sqrt(1 - alpha_hat)*predicted_noise) + beta*z
+
+                xt = 1/torch.sqrt(alpha)*(xt - ((1 - alpha)/(torch.sqrt(1 - alpha_hat)))*predicted_noise) + torch.sqrt(beta) * z
+
         model.train()
         xt = (xt.clamp(-1, 1) + 1)/2
-        xt = (xt*255).type(torch.uint8)
+        xt = (xt * 255).type(torch.uint8)
         return xt
