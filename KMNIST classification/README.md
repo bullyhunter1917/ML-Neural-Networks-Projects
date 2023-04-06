@@ -29,3 +29,7 @@ Results:
 Traning plot:
 
 ![plot](https://user-images.githubusercontent.com/45041977/228349852-58df18cc-4c90-4cca-abd2-2d0acf8ab041.png)
+
+Sample from test set:
+
+![336660826_768577274449528_6826466207788651435_n](https://user-images.githubusercontent.com/45041977/230396047-30d2334c-0a4e-4783-9fbc-389adf363b6c.png)
