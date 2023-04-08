@@ -1,4 +1,4 @@
-My first try to create image classifier using Convolution Neural Networks. I use LeNet architecture
+My first attempt to create an image classifier using Convolution Neural Networks. I used LeNet architecture
 
 Dataset:
 - KMNIST

@@ -1,4 +1,4 @@
-Project created by me and my firend Magda Słonińska for ML course on my univeristy
+The project created by me and my firend Magda Słonińska for the ML course at my univeristy
 
 We use KNN and Decision Tree algorithms to classify food pictures
 

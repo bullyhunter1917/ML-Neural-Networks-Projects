@@ -19,7 +19,7 @@ Here is some samples from traning:
 ![517](https://user-images.githubusercontent.com/45041977/230725919-1067aecc-6821-4af1-9353-36fab7ca8da0.jpg)
 
 
-Because results were unsatisfying i decided to train model for 54x54 pictures and here is early results:
+Since the results were unsatisfying, I decided to train the model for 54x54 pictures, and here are the early results:
 
 0 epoch:
 
