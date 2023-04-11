@@ -28,3 +28,23 @@ Since the results were unsatisfying, I decided to train the model for 54x54 pict
 90 epoch:
 
 ![90](https://user-images.githubusercontent.com/45041977/230726021-ffe59e3e-6f15-4582-bbe2-2c142f68af01.jpg)
+
+150 epoch:
+
+![150](https://user-images.githubusercontent.com/45041977/231270175-986ed8a2-8a30-49ad-bb59-a45eee72e147.jpg)
+
+200 epoch:
+
+![200](https://user-images.githubusercontent.com/45041977/231270283-e5202da4-3871-4824-aa90-28c90decec10.jpg)
+
+240 epoch:
+
+![240](https://user-images.githubusercontent.com/45041977/231270363-3ed7212b-00f9-4e7e-ab47-c20a1b96d761.jpg)
+
+300 epoch:
+
+![300](https://user-images.githubusercontent.com/45041977/231270452-bb737865-1f75-4fbc-a461-2cb086504929.jpg)
+
+340 epoch:
+
+![340](https://user-images.githubusercontent.com/45041977/231270638-b6ec64c9-7503-4a3f-ad31-7d5ae97d6738.jpg)
